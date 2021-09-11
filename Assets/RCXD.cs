@@ -37,13 +37,17 @@ public class RCXD : MonoBehaviour
 
         rb.MoveRotation(rotationAngle);
 
-        if (steeringAmount != 0 && prevSteeringAmount != steeringAmount)
+
+        // Even if the logic here seems overcomplex, it is to preserve performance.
+        // Rather than running "transform.GetChild(0).GetComponent<SkidmarkHandler>().toggleSkidmarks(true);" several tims a second,
+        // this code checks if the value of the steering input has changed, which helps with performance and lowers the overall fetches.
+        if (steeringAmount != 0 && prevSteeringAmount != steeringAmount)  // When you first pressing the button, turn on skidmarks
         {
             transform.GetChild(0).GetComponent<SkidmarkHandler>().toggleSkidmarks(true);
         }
-        else if ( prevSteeringAmount == steeringAmount ) { }
-        else
-		{
+        else if ( prevSteeringAmount == steeringAmount ) { }  // Once you've started holding down the button, do nothing.
+        else  // When you release the button, turn off skidmarks.
+        {
             transform.GetChild(0).GetComponent<SkidmarkHandler>().toggleSkidmarks(false);
         }
 
