@@ -5,30 +5,49 @@ using UnityEngine;
 public class RCXD : MonoBehaviour
 {
 
-    public float baseSpeed = 1;
-    public float speedMod = 1;
-    public float acceleration = 1;
+    public float base_speed = 1f;
+    public float acceleration = 0.01f;
+    public float max_speed = 10f;
+    public float handling = 5f;
+
+
+    private float prevSteeringAmount = 0f;
 
     public Rigidbody2D rb;
 
-    private float currentSpeed = 0;
+    private float rotationAngle = 0;
+
 
     // Start is called before the first frame update
     void Start()
     {
-        
+        transform.GetChild(0).GetComponent<SkidmarkHandler>().toggleSkidmarks(false);
     }
 
     // Update is called once per frame
     void Update()
     {
-        if (currentSpeed < baseSpeed) {
-            currentSpeed += acceleration / 100;
-        }
-        else { currentSpeed = baseSpeed; }
-        var movement_v = currentSpeed * speedMod;
-        rb.velocity = new Vector2(0, movement_v);
-        
+        var steeringAmount = Input.GetAxis("Horizontal");
+        Vector2 speedVector = transform.up * base_speed;
+        rb.AddForce(speedVector, ForceMode2D.Force);
+        if (base_speed < max_speed) { base_speed += acceleration; }
 
+
+        rotationAngle -= steeringAmount * handling;
+
+        rb.MoveRotation(rotationAngle);
+
+        if (steeringAmount != 0 && prevSteeringAmount != steeringAmount)
+        {
+            transform.GetChild(0).GetComponent<SkidmarkHandler>().toggleSkidmarks(true);
+        }
+        else if ( prevSteeringAmount == steeringAmount ) { }
+        else
+		{
+            transform.GetChild(0).GetComponent<SkidmarkHandler>().toggleSkidmarks(false);
+        }
+
+
+        prevSteeringAmount = steeringAmount;
     }
 }
